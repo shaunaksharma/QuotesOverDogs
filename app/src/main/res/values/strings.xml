@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Quotes Over Dogs</string>
+    <string name="image_description">Display for dog images.</string>
+    <string name="action_export_image">Export Image</string>
+    <string name="action_about">About</string>
+    <string name="about_about">Quotes Over Dogs generates lighthearted images of cute dogs with simple words of wisdom.</string>
+    <string name="about_libraries_one">Quotes Over Dogs ues the Retrofit library to make API calls to \'https://random.dog\' for its images and \'api.forismatic.com\' for its quotes.</string>
+    <string name="about_libraries_two">Quotes Over Dogs uses the Palette library to detect the major color in the image and sets the color as the quote background.</string>
+    <string name="about_libraries_three">Quotes Over Dogs uses the ACRA library to send crash reports and bug reports.</string>
+    <string name="about_svg">Quotes Over Dogs uses SVGs generated through \'https://icons8.com\'.</string>
+    <string name="about_font">Quotes Over Dogs uses \'Amatic SC\', \'Cinzel\', \'Courgette\', \'Dancing Script\', \'Dosis\', \'Laila\', \'Merriweather\', \'Niconne\', \'Open Sans\', \'PT Serif\', and \'Tangerine\' fonts. All fonts acquired through Google Fonts.</string>
+
+    <string name="bug_report_subject">Quotes Over Dogs Bug Report</string>
+    <string name="bug_report_body">Dogs need rest too! Please find attached the bug report for your application.</string>
+</resources>
