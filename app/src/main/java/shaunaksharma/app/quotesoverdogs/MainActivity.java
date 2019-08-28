@@ -1,16 +1,22 @@
 package shaunaksharma.app.quotesoverdogs;
 
 import android.Manifest;
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.constraint.ConstraintLayout;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
@@ -22,6 +28,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.os.AsyncTask;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -70,27 +78,30 @@ public class MainActivity extends AppCompatActivity {
         final Typeface[] fonts = {amatic, courgette, laila, merriweather, dosis, opensans, cinzel, ptserif};
 
         //Initialize retrofit for image API and make the initial request.
-        //Initial image setup done.
         Retrofit.Builder imageBuilder = new Retrofit.Builder()
                 .baseUrl("https://random.dog/")
                 .addConverterFactory(GsonConverterFactory.create());
         Retrofit retroImage = imageBuilder.build();
         final ImageClient mainImageClient = retroImage.create(ImageClient.class);
+
+        //Initial image setup done.
         requestNewImageLink(mainImageClient);
 
         //Initialize retrofit for quotes API and make the initial request.
-        //initial quote setup done.
         Retrofit.Builder quotesBuilder = new Retrofit.Builder()
                 .baseUrl("https://api.forismatic.com/api/1.0/")
                 .addConverterFactory(GsonConverterFactory.create());
         Retrofit retroQuote = quotesBuilder.build();
         final QuoteClient mainQuoteClient = retroQuote.create(QuoteClient.class);
+
+        //initial quote setup done.
         requestNewQuoteLink(mainQuoteClient);
 
         //Initial font setup done.
         randomizeFont(fonts);
 
-        //Refresh all button. Randomize image, quote, font.
+
+        //Set listener fot 'Refresh All' button. Randomize image, quote, font.
         mainButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -123,9 +134,21 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    //AsyncTask in order to retrieve image from link
+    //AsyncTask in order to retrieve image from link. Way simpler with Glide, but I wanted to try AsyncTask.
     class setImage extends AsyncTask<String, Void, Bitmap>
     {
+        @Override
+        protected void onPreExecute()
+        {
+            ProgressBar progress = findViewById(R.id.progressBar);
+            progress.setVisibility(View.VISIBLE);
+            ImageView mainImage = findViewById(R.id.mainimage);
+            mainImage.setForeground(new ColorDrawable(0x80000000));
+
+            TextView mainText = findViewById(R.id.mainTextView);
+            mainText.setForeground(new ColorDrawable(0x80000000));
+        }
+
         @Override
         protected Bitmap doInBackground(String... links)//gets image, converts to bitmap, crops to a square and returns the bitmap
         {
@@ -152,8 +175,11 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Bitmap mainviewbmp)//image bitmap is ready, set image
         {
+            ProgressBar progress = findViewById(R.id.progressBar);
+            progress.setVisibility(View.INVISIBLE);
             ImageView mainImage = findViewById(R.id.mainimage);
             mainImage.setImageBitmap(mainviewbmp);
+            mainImage.setForeground(null);
 
             mainImage.setDrawingCacheEnabled(true);
             Palette main_palette = Palette.from(mainImage.getDrawingCache()).generate();//palette generated, ready to examine for colors
@@ -165,6 +191,10 @@ public class MainActivity extends AppCompatActivity {
 
             TextView mainText = findViewById(R.id.mainTextView);
             mainText.setBackgroundColor(darkvibe);//set the color on quote area background
+            mainText.setForeground(null);
+
+            transitionBackground(darkvibe);
+
             TextView watermark = findViewById(R.id.watermark);
             watermark.setBackgroundColor(darkvibe);//set the color on watermark background(watermark remains hidden unless image is exported)
         }
@@ -243,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
         mainText.setTypeface(fontarr[n]);
     }
 
-    public void handleBug(Exception e)
+    public void handleBug(Exception e)//Simple bug handler. Allows user to send a bug report through email.
     {
         new AlertDialog.Builder(MainActivity.this)//inform the user that an error has occurred
                 .setTitle("Oops!")
@@ -269,7 +299,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_export) {
+        if (id == R.id.action_export) {//set up export
 
             if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
             {
@@ -295,8 +325,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case REQUEST_WRITE_STORAGE: {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -304,14 +333,11 @@ public class MainActivity extends AppCompatActivity {
                     exportImage();
 
                 } else {
-                    //inform the user that permission is needed for export
+                    //inform the user that permission is needed for export through a Toast.
                     Toast.makeText(MainActivity.this, "Could not export image without storage permissions.", Toast.LENGTH_LONG).show();
                 }
                 return;
             }
-
-            // other 'switch' lines to check for other
-            // permissions this app might request
         }
     }
 
@@ -326,10 +352,12 @@ public class MainActivity extends AppCompatActivity {
         mainContent.buildDrawingCache();
         mainImage.setDrawingCacheEnabled(true);
         mainImage.buildDrawingCache();
+
         Bitmap exportBMP = Bitmap.createBitmap(mainContent.getWidth(), mainContent.getHeight(), Bitmap.Config.ARGB_8888);//create the bitmap of the correct size
         Canvas canvas = new Canvas(exportBMP);
-        mainContent.draw(canvas);//draw everything from the parent view into the exportBMP bitmap
+        mainContent.draw(canvas);//draw everything from the parent view (that holds the image, quote, and watermark) into the exportBMP bitmap
 
+        //Dynamic filename setup. Filename wil be generated with date and time.
         Calendar calendar = Calendar.getInstance();
         int day = calendar.get(Calendar.DAY_OF_MONTH);
         int month = calendar.get(Calendar.MONTH);
@@ -351,7 +379,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         catch(IOException e){
-            //Log.d("IOException", e.getMessage());
+            //Log.d("IOException2", e.getMessage());
             handleBug(e);
         }
 
@@ -363,7 +391,7 @@ public class MainActivity extends AppCompatActivity {
         }
         catch(IOException e)
         {
-            Log.d("IOException", e.getMessage());
+            //Log.d("IOException3", e.getMessage());
             handleBug(e);
         }
         watermark.setAlpha(0f);//set watermark to invisible again
@@ -372,7 +400,35 @@ public class MainActivity extends AppCompatActivity {
         mainContent.destroyDrawingCache();
         mainImage.setDrawingCacheEnabled(false);
         mainImage.destroyDrawingCache();
+
         Toast.makeText(MainActivity.this, "Image exported to folder QuotesOverDogs", Toast.LENGTH_LONG).show();
     }
 
+    public void transitionBackground(int colorTo)
+    {
+        ConstraintLayout topLayout = findViewById(R.id.topLayout);
+        LinearLayout buttonLayout = findViewById(R.id.buttonLayout);
+
+        int currColor = Color.TRANSPARENT;
+        Drawable background = topLayout.getBackground();
+        currColor = ((ColorDrawable) background).getColor();
+
+        String hexColor = String.format("#%06X", (0xFFFFFF & colorTo));
+        String hexColorNew = "#66"+hexColor.substring(1);
+        int colorToFinal = Color.parseColor(hexColorNew);
+
+        ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), currColor, colorToFinal);
+        colorAnimation.setDuration(500); // milliseconds
+
+        colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+                topLayout.setBackgroundColor((int) animator.getAnimatedValue());
+            }
+
+        });
+
+        colorAnimation.start();
+    }
 }

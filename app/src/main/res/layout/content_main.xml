@@ -2,12 +2,11 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/topLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/background_light"
     android:clipToPadding="false"
-    android:weightSum="100"
-    android:outlineProvider="paddedBounds"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".MainActivity"
     tools:showIn="@layout/activity_main">
@@ -29,10 +28,12 @@
             android:layout_width="400dp"
             android:layout_height="400dp"
             android:contentDescription="@string/image_description"
+            android:foreground="@color/translucentforeground"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
             tools:srcCompat="@tools:sample/avatars" />
 
         <TextView
@@ -53,6 +54,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/colorPrimary"
+            android:foreground="@color/translucentforeground"
             android:hyphenationFrequency="none"
             android:includeFontPadding="false"
             android:maxWidth="400dp"
@@ -62,20 +64,29 @@
             app:layout_constraintBottom_toBottomOf="@+id/mainimage"
             app:layout_constraintEnd_toEndOf="@+id/mainimage"
             app:layout_constraintStart_toStartOf="@+id/mainimage" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="@+id/mainTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/mainimage" />
     </android.support.constraint.ConstraintLayout>
 
     <LinearLayout
-        android:id="@+id/linearLayout2"
+        android:id="@+id/buttonLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:background="@android:color/background_light"
-        android:orientation="horizontal"
         android:clipToPadding="false"
-        android:outlineProvider="paddedBounds"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -83,35 +94,31 @@
 
         <Button
             android:id="@+id/randomQuote"
-            android:layout_width="72dp"
-            android:layout_height="72dp"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
             android:layout_marginTop="48dp"
             android:layout_marginEnd="12dp"
-            android:background="@drawable/ic_refresh_quote"
-            android:elevation="10dp" />
+            android:background="@drawable/ic_refresh_quote" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clipToPadding="false"
-            android:outlineProvider="paddedBounds"
             android:orientation="vertical">
 
             <Button
                 android:id="@+id/mainbutton"
-                android:layout_width="96dp"
-                android:layout_height="96dp"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
                 android:layout_marginBottom="18dp"
                 android:background="@drawable/ic_refresh"
-                android:elevation="100dp"
-                android:shadowColor="@android:color/black"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toRightOf="@id/randomFont" />
 
             <Button
                 android:id="@+id/randomFont"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
                 android:layout_marginLeft="12dp"
                 android:layout_marginRight="12dp"
                 android:background="@drawable/ic_refresh_font"
@@ -120,12 +127,10 @@
 
         <Button
             android:id="@+id/randomImage"
-            style="?android:attr/borderlessButtonStyle"
-            android:layout_width="72dp"
-            android:layout_height="72dp"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
             android:layout_marginStart="12dp"
             android:layout_marginTop="48dp"
-            android:layout_weight="1"
             android:background="@drawable/ic_refresh_image" />
 
     </LinearLayout>
